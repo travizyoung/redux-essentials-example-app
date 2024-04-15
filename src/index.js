@@ -5,6 +5,8 @@ import { Provider } from 'react-redux'
 import App from './App'
 import { store } from './app/store'
 
+import { fetchUsers } from './features/users/users.slice'
+
 import './index.css'
 
 import { worker } from './api/server'
@@ -15,6 +17,8 @@ async function start() {
   await worker.start({ onUnhandledRequest: 'bypass' })
 
   const root = createRoot(document.getElementById('root'))
+
+  store.dispatch(fetchUsers())
 
   root.render(
     <React.StrictMode>

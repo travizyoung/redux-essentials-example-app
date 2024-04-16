@@ -15,8 +15,6 @@ export const Navbar = () => {
   // omit component contents
   let unreadNotificationsBadge
 
-  console.log(unreadNotificationsBadge)
-
   if (numUnreadNotifications > 0) {
     unreadNotificationsBadge = (
       <span className="badge">{numUnreadNotifications}</span>

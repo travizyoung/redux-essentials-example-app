@@ -1,4 +1,4 @@
-import react, { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
 
@@ -9,7 +9,7 @@ import { ReactionButtons } from './ReactionButtons'
 
 import { selectAllPosts, fetchPosts } from './postsSlice'
 
-const PostExcerpt = ({ post }) => {
+let PostExcerpt = ({ post }) => {
   return (
     <article className="post-excerpt">
       <h3>{post.title}</h3>
@@ -43,6 +43,7 @@ export const PostsList = () => {
   }, [postsStatus, dispatch])
 
   let content
+  PostExcerpt = React.memo(PostExcerpt)
 
   if (postsStatus === 'loading') {
     content = <Spinner text="Loading..." />

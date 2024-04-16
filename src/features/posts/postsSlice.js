@@ -3,14 +3,26 @@ import {
   nanoid,
   createAsyncThunk,
   createSelector,
+  createEntityAdapter,
 } from '@reduxjs/toolkit'
 import { client } from '../../api/client'
 
-const initialState = {
-  posts: [],
+/**
+ * we pass in a sortComparer function that will sort newer items to the front based on the post.date field.
+ */
+const postsAdapter = createEntityAdapter({
+  sortComparer: (a, b) => b.date.localeCompare(a.date),
+})
+
+/**
+ * getInitialState() returns an empty {ids: [], entities: {}} normalized state object.
+ * Our postsSlice needs to keep the status and error fields for loading state too,
+ * so we pass those in to getInitialState().
+ */
+const initialState = postsAdapter.getInitialState({
   status: 'idle',
   error: null,
-}
+})
 
 const postsSlice = createSlice({
   name: 'posts',
@@ -44,7 +56,7 @@ const postsSlice = createSlice({
 
     postUpdated: (state, action) => {
       const { id, title, content } = action.payload
-      const existingPost = state.posts.find((post) => post.id === id)
+      const existingPost = state.entities[id]
       if (existingPost) {
         existingPost.title = title
         existingPost.content = content
@@ -53,7 +65,7 @@ const postsSlice = createSlice({
 
     reactionAdded(state, action) {
       const { postId, reaction } = action.payload
-      const existingPost = state.posts.find((post) => post.id === postId)
+      const existingPost = state.entities[postId]
       if (existingPost) {
         existingPost.reactions[reaction]++
       }
@@ -66,30 +78,23 @@ const postsSlice = createSlice({
       })
       .addCase(fetchPosts.fulfilled, (state, action) => {
         state.status = 'succeeded'
-        state.posts = action.payload
+
+        // The `upsertMany` method provided by the adapter merges the newly fetched posts with the existing posts in the state.
+        // If a post already exists in the state, its properties are updated with the new values from the server.
+        // If a post does not already exist in the state, it is added to the state.
+        postsAdapter.upsertMany(state, action.payload)
       })
       .addCase(fetchPosts.rejected, (state, action) => {
         state.status = 'failed'
         state.error = action.error.message
       })
+      .addCase(addNewPost.fulfilled, (state, action) => {
+        postsAdapter.addOne(state, action.payload)
+      })
     // .addMatcher()
     // .addDefaultCase()
-
-    builder.addCase(addNewPost.fulfilled, (state, action) => {
-      state.posts.push(action.payload)
-    })
   },
 })
-
-export const selectAllPosts = (state) => state.posts.posts
-
-export const selectPostById = (postId) => (state) =>
-  state.posts.posts.find((post) => post.id === postId)
-
-export const selectPostsByUser = createSelector(
-  [selectAllPosts, (state, userId) => userId],
-  (posts, userId) => posts.filter((post) => post.user === userId),
-)
 
 export const { postAdded, postUpdated, reactionAdded } = postsSlice.actions
 
@@ -100,7 +105,20 @@ export default postsSlice.reducer
  *  1. A string that will be used as the prefix for the generated action types
  *  2. A "payload creator" callback function that should return a Promise containing some data,
  *     or rejected Promise with an error
+ *
  */
+
+export const {
+  selectAll: selectAllPosts,
+  selectById: selectPostById,
+  selectIds: selectPostIds,
+} = postsAdapter.getSelectors((state) => state.posts)
+
+export const selectPostsByUser = createSelector(
+  [selectAllPosts, (state, userId) => userId],
+  (posts, userId) => posts.filter((post) => post.user === userId),
+)
+
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   const response = await client.get('/fakeApi/posts')
   return response.data

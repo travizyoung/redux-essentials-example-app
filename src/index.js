@@ -4,8 +4,7 @@ import { Provider } from 'react-redux'
 
 import App from './App'
 import { store } from './app/store'
-
-import { fetchUsers } from './features/users/users.slice'
+import { fetchUsers } from './features/users/usersSlice'
 
 import './index.css'
 

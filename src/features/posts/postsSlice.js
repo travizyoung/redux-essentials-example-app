@@ -87,8 +87,8 @@ export const selectPostById = (postId) => (state) =>
   state.posts.posts.find((post) => post.id === postId)
 
 export const selectPostsByUser = createSelector(
-  ([selectAllPosts, (state, userId) => userId],
-  (posts, userId) => posts.filter((post) => post.user === userId)),
+  [selectAllPosts, (state, userId) => userId],
+  (posts, userId) => posts.filter((post) => post.user === userId),
 )
 
 export const { postAdded, postUpdated, reactionAdded } = postsSlice.actions

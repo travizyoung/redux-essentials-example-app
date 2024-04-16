@@ -2,7 +2,11 @@ import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectUserById } from './usersSlice'
-import { selectAllPosts, fetchPosts } from '../posts/postsSlice'
+import {
+  selectAllPosts,
+  fetchPosts,
+  selectPostsByUser,
+} from '../posts/postsSlice'
 
 export const UserPage = ({ match }) => {
   const postsStatus = useSelector((state) => state.posts.status)
@@ -21,15 +25,10 @@ export const UserPage = ({ match }) => {
     return <div>User not found!</div>
   }
 
-  const postsForUser = useSelector(selectAllPosts).filter(
-    (post) => post.user === userId,
-  )
+  // const postsForUser = useSelector((state) => selectPostsByUser(state, userId))
 
   // This will rerender this page
-  // const postsForUser = useSelector(state => {
-  //   const allPosts = selectAllPosts(state)
-  //   return allPosts.filter(post => post.user === userId)
-  // })
+  const postsForUser = useSelector((state) => selectPostsByUser(state, userId))
 
   const postTitles = postsForUser.map((post) => (
     <li key={post.id}>

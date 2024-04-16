@@ -1,21 +1,29 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import { selectAllUsers } from './usersSlice'
+import { selectUserById, selectUserIds } from './usersSlice'
+
+const UserExcerpt = ({ userId }) => {
+  const user = useSelector((state) => selectUserById(state, userId))
+
+  return (
+    <li>
+      <Link to={`/users/${userId}`}>{user.name}</Link>
+    </li>
+  )
+}
 
 export const UsersList = () => {
-  const users = useSelector(selectAllUsers)
+  const userIds = useSelector(selectUserIds)
 
-  const renderUsers = users.map((user) => (
-    <li key={user.id}>
-      <Link to={`/users/${user.id}`}>{user.name}</Link>
-    </li>
+  const renderedUsers = userIds.map((userId) => (
+    <UserExcerpt key={userId} userId={userId} />
   ))
 
   return (
     <section>
       <h2>Users</h2>
-      <ul>{renderUsers}</ul>
+      <ul>{renderedUsers}</ul>
     </section>
   )
 }

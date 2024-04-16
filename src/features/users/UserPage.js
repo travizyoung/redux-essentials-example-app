@@ -19,7 +19,7 @@ export const UserPage = ({ match }) => {
   }, [postsStatus, dispatch])
 
   const { userId } = match.params
-  const user = useSelector(selectUserById(userId))
+  const user = useSelector((state) => selectUserById(state, userId))
 
   if (!user) {
     return <div>User not found!</div>

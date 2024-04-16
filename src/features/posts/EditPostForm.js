@@ -9,7 +9,7 @@ import { selectPostById } from './postsSlice'
 export const EditPostForm = ({ match }) => {
   const { postId } = match.params
 
-  const post = useSelector(selectPostById(postId))
+  const post = useSelector((state) => selectPostById(state, postId))
 
   if (!post) {
     return (
